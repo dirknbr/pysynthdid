@@ -10,10 +10,10 @@ from synthdid.summary import Summary
 class SynthDID(Optimize, Plot, Variance, Summary):
     """
     Synthetic Difference in Differences
-    df              : pandas.DataFrame
-    pre_term        : term before treatment
-    post_term       : term after treatmetn
-    treatment_unit  : treatment columns names list
+    df              : pandas.DataFrame (index is time and needs to correspond to pre_term and post_term)
+    pre_term        : term before treatment (list or tuple)
+    post_term       : term after treatment (list or tuple)
+    treatment_unit  : treatment columns names list (all other columns are used as controls)
 
     [example]
     df = fetch_CaliforniaSmoking()
@@ -114,7 +114,7 @@ class SynthDID(Optimize, Plot, Variance, Summary):
             self.hat_omega_Lasso = self.est_omega_Lasso(self.Y_pre_c, self.Y_pre_t)
             self.hat_omega_Ridge = self.est_omega_Ridge(self.Y_pre_c, self.Y_pre_t)
 
-    def did_potentical_outcome(self):
+    def did_potential_outcome(self):
         """
         return potential outcome
         """
@@ -139,10 +139,10 @@ class SynthDID(Optimize, Plot, Variance, Summary):
 
         return pd.concat([Y_pre_t["did"], Y_post_t["did"]], axis=0)
 
-    def sc_potentical_outcome(self):
+    def sc_potential_outcome(self):
         return pd.concat([self.Y_pre_c, self.Y_post_c]).dot(self.hat_omega_ADH)
 
-    def sparceReg_potentical_outcome(self, model="ElasticNet"):
+    def sparceReg_potential_outcome(self, model="ElasticNet"):
         Y_pre_c_intercept = self.Y_pre_c.copy()
         Y_post_c_intercept = self.Y_post_c.copy()
         Y_pre_c_intercept["intercept"] = 1
@@ -169,7 +169,7 @@ class SynthDID(Optimize, Plot, Variance, Summary):
 
         return Y_c.dot(hat_omega) + _intercept
 
-    def sdid_potentical_outcome(self):
+    def sdid_potential_outcome(self):
         Y_pre_c = self.Y_pre_c.copy()
         Y_post_c = self.Y_post_c.copy()
         hat_omega = self.hat_omega[:-1]
@@ -184,7 +184,7 @@ class SynthDID(Optimize, Plot, Variance, Summary):
 
         return pd.concat([pre_outcome, post_outcome], axis=0)
 
-    def sparce_sdid_potentical_outcome(self, model="ElasticNet"):
+    def sparce_sdid_potential_outcome(self, model="ElasticNet"):
         Y_pre_c_intercept = self.Y_pre_c.copy()
         Y_post_c_intercept = self.Y_post_c.copy()
         Y_pre_c_intercept["intercept"] = 1
@@ -281,7 +281,7 @@ class SynthDID(Optimize, Plot, Variance, Summary):
             counterfuctual_post_treat = pre_treat + (post_sdid - pre_sdid)
 
         elif model == "sc":
-            result["sc"] = self.sc_potentical_outcome()
+            result["sc"] = self.sc_potential_outcome()
             post_sc = result.loc[self.post_term[0] :, "sc"].mean()
             counterfuctual_post_treat = post_sc
 
@@ -313,6 +313,7 @@ class SynthDID(Optimize, Plot, Variance, Summary):
         self.sdid_se = np.sqrt(sdid_var)
         self.sc_se = np.sqrt(sc_var)
         self.did_se = np.sqrt(did_var)
+        # returns None, so call object.sdid_se after running it
 
 
 if __name__ == "__main__":
