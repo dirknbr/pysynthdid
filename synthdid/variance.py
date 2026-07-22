@@ -72,28 +72,28 @@ class Variance(object):
                 post_sdid = pla_result.loc[self.post_term[0] :, "sdid"].mean()
 
                 pre_treat = (pla_Y_pre_t.T @ pla_hat_lambda).values[0]
-                sdid_counterfuctual_post_treat = pre_treat + (post_sdid - pre_sdid)
+                sdid_counterfactual_post_treat = pre_treat + (post_sdid - pre_sdid)
 
                 result_tau_sdid.append(
-                    post_placebo_treat - sdid_counterfuctual_post_treat
+                    post_placebo_treat - sdid_counterfactual_post_treat
                 )
 
                 ## sc
-                sc_counterfuctual_post_treat = pla_result.loc[
+                sc_counterfactual_post_treat = pla_result.loc[
                     self.post_term[0] :, "sc"
                 ].mean()
-                result_tau_sc.append(post_placebo_treat - sc_counterfuctual_post_treat)
+                result_tau_sc.append(post_placebo_treat - sc_counterfactual_post_treat)
 
                 # did
                 did_post_actural_treat = (
                     post_placebo_treat
                     - pla_result.loc[: self.pre_term[1], "pla_actual_y"].mean()
                 )
-                did_counterfuctual_post_treat = (
+                did_counterfactual_post_treat = (
                     pla_Y_post_c.mean(axis=1).mean() - pla_Y_pre_c.mean(axis=1).mean()
                 )
                 result_tau_did.append(
-                    did_post_actural_treat - did_counterfuctual_post_treat
+                    did_post_actural_treat - did_counterfactual_post_treat
                 )
 
             return (
